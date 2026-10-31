@@ -1,0 +1,101 @@
+export interface TranslationSchema {
+  common: {
+    appName: string;
+    posTitle: string;
+    dashboardTitle: string;
+    inventoryTitle: string;
+    poweredBy: string;
+    searchPlaceholder: string;
+    allCategories: string;
+    categoryFood: string;
+    categoryDrinks: string;
+    categoryRetail: string;
+    categoryElectronics: string;
+    stock: string;
+    inStock: string;
+    lowStock: string;
+    outOfStock: string;
+    currency: string;
+    total: string;
+    subtotal: string;
+    tax: string;
+    discount: string;
+    change: string;
+    receivedAmount: string;
+    itemsCount: string;
+    clearCart: string;
+    checkout: string;
+    printReceipt: string;
+    close: string;
+    viewDemo: string;
+    emptyCartTitle: string;
+    emptyCartDesc: string;
+    orderSuccess: string;
+    orderSuccessDesc: string;
+    orderId: string;
+    dateTime: string;
+    paymentMethod: string;
+    cash: string;
+    qrPay: string;
+    card: string;
+    confirmPayment: string;
+    addProduct: string;
+    manageProducts: string;
+    delete: string;
+    edit: string;
+    save: string;
+    cancel: string;
+    qty: string;
+    price: string;
+    productName: string;
+    category: string;
+  };
+  auth: {
+    loginTitle: string;
+    loginSubtitle: string;
+    demoNoticeBadge: string;
+    demoNoticeText: string;
+    selectRole: string;
+    roleManager: string;
+    roleManagerDesc: string;
+    roleCashier: string;
+    roleCashierDesc: string;
+    quickLoginBtn: string;
+    enterSystem: string;
+    logout: string;
+    loggedInAs: string;
+  };
+  demoSession: {
+    bannerTitle: string;
+    expiresIn: string;
+    resetBtn: string;
+    resetConfirmTitle: string;
+    resetConfirmDesc: string;
+    confirmReset: string;
+    expiredAlert: string;
+  };
+  dashboard: {
+    kpiRevenue: string;
+    kpiOrders: string;
+    kpiAvgTicket: string;
+    kpiActiveItems: string;
+    salesOverview: string;
+    recentTransactions: string;
+    topSelling: string;
+    inventoryAlerts: string;
+    growthCompare: string;
+    tableCustomer: string;
+    tableAmount: string;
+    tableStatus: string;
+    statusCompleted: string;
+    statusPending: string;
+  };
+  currencySwitcher: {
+    lak: string;
+    thb: string;
+    usd: string;
+  };
+}
+
+export type Locale = "lo" | "th" | "en";
+
