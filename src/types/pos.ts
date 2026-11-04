@@ -56,3 +56,49 @@ export interface DemoUser {
   avatar: string;
 }
 
+// POS Component Props Types
+export interface PosTerminalProps {
+  products: Product[];
+  currency: Currency;
+  onOrderCompleted: (order: Order, updatedProducts: Product[]) => void;
+}
+
+export interface ProductCatalogGridProps {
+  products: Product[];
+  currency: Currency;
+  selectedCategory: string;
+  setSelectedCategory: (cat: string) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  onAddToCart: (product: Product) => void;
+}
+
+export interface CartTicketProps {
+  cart: CartItem[];
+  currency: Currency;
+  onUpdateQuantity: (productId: string, delta: number) => void;
+  onRemoveItem: (productId: string) => void;
+  onClearCart: () => void;
+  onCheckout: () => void;
+  subtotal: number;
+  tax: number;
+  discount: number;
+  total: number;
+}
+
+export interface PaymentModalProps {
+  items: CartItem[];
+  subtotal: number;
+  tax: number;
+  discount: number;
+  total: number;
+  currency: Currency;
+  cashierName: string;
+  onClose: () => void;
+  onSuccess: (order: Order) => void;
+}
+
+export interface ReceiptModalProps {
+  order: Order | null;
+  onClose: () => void;
+}

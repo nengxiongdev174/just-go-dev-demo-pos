@@ -5,8 +5,8 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { POSProvider } from "@/context/POSContext";
 
 export const metadata: Metadata = {
-  title: "JUSTGODEV Cloud POS • Live Demo Sandbox",
-  description: "Next-Gen Cloud POS & Retail Management Suite by JUSTGODEV - Multilingual (Lao, Thai, English) with Realtime LocalStorage Sandbox",
+  title: "JustGoDev • Live Demo",
+  description: "Next-Gen Cloud POS & Retail Management Suite by JustGoDev - Multilingual (Lao, Thai, English) with Realtime LocalStorage Sandbox",
 };
 
 export default function RootLayout({

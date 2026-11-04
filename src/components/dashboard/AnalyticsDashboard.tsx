@@ -39,7 +39,7 @@ export function AnalyticsDashboard({
   products,
   currency,
 }: AnalyticsDashboardProps) {
-  const { dictionary } = useLanguage();
+  const { locale, dictionary } = useLanguage();
   const [activeDayIdx, setActiveDayIdx] = useState<number>(6); // Default: Today (Sunday)
   const [chartView, setChartView] = useState<"revenue" | "orders">("revenue");
 
@@ -119,23 +119,6 @@ export function AnalyticsDashboard({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight text-foreground">
-            {dictionary.common.dashboardTitle}
-          </h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {dictionary.dashboard.salesOverview} • Live Store Analytics
-          </p>
-        </div>
-
-        <Badge variant="outline" className="self-start sm:self-auto gap-1 text-xs border-emerald-500/30 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20 py-1 px-2.5 rounded-lg">
-          <ArrowUpRight className="w-3.5 h-3.5" />
-          <span>+18.4% vs last week</span>
-        </Badge>
-      </div>
-
       {/* KPI Cards (4 Grid) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Revenue */}
@@ -174,7 +157,7 @@ export function AnalyticsDashboard({
               {totalOrdersCount}
             </div>
             <p className="text-[11px] text-muted-foreground mt-1.5">
-              Completed transactions
+              {dictionary.dashboard.completedTransactions}
             </p>
           </CardContent>
         </Card>
@@ -194,7 +177,7 @@ export function AnalyticsDashboard({
               {formatPrice(avgTicket)}
             </div>
             <p className="text-[11px] text-muted-foreground mt-1.5">
-              Average basket value
+              {dictionary.dashboard.averageBasketValue}
             </p>
           </CardContent>
         </Card>
@@ -214,7 +197,7 @@ export function AnalyticsDashboard({
               {activeProductsCount} / {products.length}
             </div>
             <p className="text-[11px] text-amber-600 font-medium mt-1.5">
-              {lowStockProducts.length} items low in stock
+              {dictionary.dashboard.itemsLowStock.replace("{count}", String(lowStockProducts.length))}
             </p>
           </CardContent>
         </Card>
@@ -231,10 +214,10 @@ export function AnalyticsDashboard({
               </div>
               <div>
                 <CardTitle className="text-sm font-bold text-foreground">
-                  Weekly Sales Performance
+                  {dictionary.dashboard.weeklySalesTitle}
                 </CardTitle>
                 <p className="text-[11px] text-muted-foreground">
-                  Daily revenue & order volume comparisons
+                  {dictionary.dashboard.weeklySalesSubtitle}
                 </p>
               </div>
             </div>
@@ -249,7 +232,7 @@ export function AnalyticsDashboard({
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Revenue
+                {dictionary.dashboard.revenue}
               </button>
               <button
                 onClick={() => setChartView("orders")}
@@ -259,7 +242,7 @@ export function AnalyticsDashboard({
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Orders
+                {dictionary.dashboard.orders}
               </button>
             </div>
           </CardHeader>
@@ -349,11 +332,11 @@ export function AnalyticsDashboard({
             <div className="flex items-center gap-2">
               <PieChart className="w-4 h-4 text-primary" />
               <CardTitle className="text-sm font-bold text-foreground">
-                Sales by Category
+                {dictionary.dashboard.salesByCategory}
               </CardTitle>
             </div>
             <Badge variant="secondary" className="text-[10px] rounded-lg">
-              4 Categories
+              4 {dictionary.common.category}
             </Badge>
           </CardHeader>
 
@@ -463,11 +446,11 @@ export function AnalyticsDashboard({
                   {dictionary.dashboard.recentTransactions}
                 </CardTitle>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  Live store orders updated in real-time
+                  {dictionary.dashboard.liveOrdersDesc}
                 </p>
               </div>
               <Badge variant="secondary" className="text-[10px] rounded-lg">
-                {orders.length} total
+                {orders.length} {dictionary.dashboard.totalBadge}
               </Badge>
             </CardHeader>
 
@@ -476,7 +459,7 @@ export function AnalyticsDashboard({
                 <TableHeader>
                   <TableRow>
                     <TableHead className="text-xs">{dictionary.dashboard.tableCustomer}</TableHead>
-                    <TableHead className="text-xs">Time / Cashier</TableHead>
+                    <TableHead className="text-xs">{dictionary.dashboard.timeCashier}</TableHead>
                     <TableHead className="text-xs">{dictionary.common.paymentMethod}</TableHead>
                     <TableHead className="text-xs text-right">{dictionary.dashboard.tableAmount}</TableHead>
                     <TableHead className="text-xs text-center">{dictionary.dashboard.tableStatus}</TableHead>
@@ -486,7 +469,7 @@ export function AnalyticsDashboard({
                   {orders.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} className="text-center py-8 text-xs text-muted-foreground">
-                        No orders recorded yet. Make a sale in the POS tab!
+                        {dictionary.dashboard.noOrdersRecorded}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -531,9 +514,9 @@ export function AnalyticsDashboard({
             <div className="flex items-center justify-between pb-3 border-b border-border">
               <span className="font-bold text-xs text-foreground flex items-center gap-1.5">
                 <Layers className="w-4 h-4 text-primary" />
-                Payment Channels
+                {dictionary.dashboard.paymentChannels}
               </span>
-              <span className="text-[10px] text-muted-foreground">Distribution</span>
+              <span className="text-[10px] text-muted-foreground">{dictionary.dashboard.distribution}</span>
             </div>
 
             <div className="space-y-3">
@@ -577,7 +560,7 @@ export function AnalyticsDashboard({
             <CardContent className="p-4 space-y-2">
               {lowStockProducts.length === 0 ? (
                 <p className="text-xs text-muted-foreground text-center py-2">
-                  All inventory healthy!
+                  {dictionary.dashboard.allInventoryHealthy}
                 </p>
               ) : (
                 lowStockProducts.map((p) => (
@@ -587,7 +570,7 @@ export function AnalyticsDashboard({
                   >
                     <div className="min-w-0 pr-2">
                       <p className="font-semibold truncate text-foreground text-[11px]">
-                        {p.name.en || p.name.th || p.name.lo}
+                        {p.name[locale] || p.name.en}
                       </p>
                       <span className="text-[9px] text-muted-foreground font-mono">
                         SKU: {p.barcode}
@@ -598,7 +581,7 @@ export function AnalyticsDashboard({
                       variant={p.stock <= 0 ? "destructive" : "warning"}
                       className="text-[9px] font-mono px-1.5 py-0 shrink-0 rounded-md"
                     >
-                      {p.stock <= 0 ? "Out" : `${p.stock} left`}
+                      {p.stock <= 0 ? "Out" : dictionary.dashboard.left.replace("{count}", String(p.stock))}
                     </Badge>
                   </div>
                 ))

@@ -2,207 +2,312 @@
 
 import React, { useState } from "react";
 import {
-  ArrowRight,
-  ShieldCheck,
   Store,
-  UserCheck,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  KeyRound,
+  CheckCircle2,
   Globe,
   Sun,
   Moon,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/context/LanguageContext";
 import { useTheme } from "@/context/ThemeContext";
 import { type DemoUser, type UserRole } from "@/types/pos";
+import { type LoginViewProps } from "@/types/auth";
 import { type Locale } from "@/locales/types";
 
-interface LoginViewProps {
-  onLogin: (user: DemoUser) => void;
+interface DemoAccount {
+  id: string;
+  name: string;
+  role: UserRole;
+  roleLabel: string;
+  email: string;
+  pass: string;
+  avatar: string;
 }
+
+const DEMO_ACCOUNTS: DemoAccount[] = [
+  {
+    id: "usr-mgr",
+    name: "Nengxiong WANGTOUAXIONG",
+    role: "manager",
+    roleLabel: "Store Manager",
+    email: "manager@JustGoDev.com",
+    pass: "mgr123",
+    avatar: "NW",
+  },
+  {
+    id: "usr-csh",
+    name: "Khamla Xayyavong",
+    role: "cashier",
+    roleLabel: "Point of Sale Cashier",
+    email: "cashier@JustGoDev.com",
+    pass: "cash123",
+    avatar: "KX",
+  },
+];
 
 export function LoginView({ onLogin }: LoginViewProps) {
   const { locale, setLocale, dictionary } = useLanguage();
   const { theme, toggleTheme } = useTheme();
 
-  const [selectedRole, setSelectedRole] = useState<UserRole>("manager");
-  const [customName, setCustomName] = useState<string>("");
+  const [email, setEmail] = useState("manager@JustGoDev.com");
+  const [password, setPassword] = useState("mgr123");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [selectedAccountId, setSelectedAccountId] = useState("usr-mgr");
 
-  const handleQuickLogin = (roleToUse: UserRole = selectedRole) => {
-    const defaultName = roleToUse === "manager" ? "Nengxiong (Manager)" : "Khamla (Cashier)";
+  const handleFillAccount = (acc: DemoAccount) => {
+    setEmail(acc.email);
+    setPassword(acc.pass);
+    setSelectedAccountId(acc.id);
+    setErrorMsg("");
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg("");
+
+    if (!email.trim() || !password.trim()) {
+      setErrorMsg(dictionary.auth.credentialsRequired);
+      return;
+    }
+
+    const matchedAccount =
+      DEMO_ACCOUNTS.find((a) => a.email.toLowerCase() === email.trim().toLowerCase()) ||
+      DEMO_ACCOUNTS[0];
+
     const user: DemoUser = {
-      id: `u-${Date.now()}`,
-      name: customName.trim() || defaultName,
-      role: roleToUse,
-      avatar: (customName.trim() || defaultName).slice(0, 2).toUpperCase(),
+      id: matchedAccount.id,
+      name: matchedAccount.name,
+      role: matchedAccount.role,
+      avatar: matchedAccount.avatar,
     };
+
     onLogin(user);
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-[#fbfbfe] dark:bg-[#09090b] text-foreground p-4 sm:p-6 transition-colors">
-      {/* Top Navbar on Login Screen */}
-      <div className="max-w-5xl mx-auto w-full flex items-center justify-between py-3">
-        <div className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-sm shadow-sm">
-            NX
-          </div>
-          <div>
-            <span className="font-bold text-sm tracking-tight text-foreground block">
-              JUSTGODEV
-            </span>
-            <span className="text-[11px] text-muted-foreground block -mt-0.5">
-              Cloud POS Platform
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Language Switcher */}
-          <div className="flex items-center bg-card rounded-lg p-1 border border-border shadow-2xs text-xs">
-            <Globe className="w-3.5 h-3.5 text-muted-foreground ml-1 mr-1" />
-            {(["lo", "th", "en"] as Locale[]).map((l) => (
-              <button
-                key={l}
-                onClick={() => setLocale(l)}
-                className={`px-2 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer ${
-                  locale === l
-                    ? "bg-primary text-primary-foreground font-semibold shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {l === "lo" ? "ລາວ" : l === "th" ? "ไทย" : "EN"}
-              </button>
-            ))}
+    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-muted/20">
+      {/* Everything inside a single unified Form Container - Nothing outside */}
+      <div className="w-full max-w-lg bg-card rounded-3xl border border-border shadow-2xl overflow-hidden p-6 sm:p-8 space-y-6">
+        {/* Top Control Bar inside Form */}
+        <div className="flex items-center justify-between pb-3 border-b border-border/60">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+            <Globe className="w-3.5 h-3.5 text-primary" />
+            <div className="flex items-center gap-1">
+              {(
+                [
+                  { code: "lo", label: "ລາວ" },
+                  { code: "th", label: "ไทย" },
+                  { code: "en", label: "EN" },
+                ] as const
+              ).map((lang) => (
+                <button
+                  type="button"
+                  key={lang.code}
+                  onClick={() => setLocale(lang.code as Locale)}
+                  className={`px-2 py-0.5 rounded-md text-[11px] font-semibold transition-all ${
+                    locale === lang.code
+                      ? "bg-primary text-primary-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {lang.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Theme Toggle */}
-          <Button variant="outline" size="icon" onClick={toggleTheme} className="h-8 w-8 border-border">
-            {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            onClick={toggleTheme}
+            className="h-7 px-2 text-xs gap-1"
+          >
+            {theme === "dark" ? (
+              <>
+                <Sun className="w-3.5 h-3.5 text-amber-500" />
+                <span>{dictionary.common.lightMode}</span>
+              </>
+            ) : (
+              <>
+                <Moon className="w-3.5 h-3.5 text-indigo-600" />
+                <span>{dictionary.common.darkMode}</span>
+              </>
+            )}
           </Button>
         </div>
-      </div>
 
-      {/* Main Login Card */}
-      <div className="max-w-md w-full mx-auto my-auto py-8">
-        {/* Notice Card for Customer */}
-        <div className="mb-4 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/40 rounded-2xl p-4 shadow-2xs">
-          <div className="flex items-start gap-3">
-            <div className="p-1.5 rounded-lg bg-primary text-white shrink-0 mt-0.5">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div>
-              <p className="font-bold text-xs text-primary">
-                {dictionary.auth.demoNoticeBadge}
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                {dictionary.auth.demoNoticeText}
-              </p>
-            </div>
+        {/* Brand Banner Inside Form */}
+        <div className="text-center space-y-1.5">
+          <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-gradient-to-tr from-primary to-purple-600 text-primary-foreground shadow-md shadow-primary/20 mb-1">
+            <Store className="w-6 h-6" />
           </div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            JustGoDev Cloud POS
+          </h1>
+          <p className="text-xs text-muted-foreground font-medium">
+            {dictionary.auth.loginSubtitle}
+          </p>
         </div>
 
-        <Card className="border border-border shadow-xl bg-card rounded-2xl">
-          <CardHeader className="text-center pb-3 pt-6">
-            <div className="h-12 w-12 rounded-2xl bg-purple-100 dark:bg-purple-900/40 text-primary flex items-center justify-center mx-auto mb-2.5">
-              <Store className="w-6 h-6" />
+        {/* Real Login Form */}
+        <form onSubmit={handleFormSubmit} className="space-y-4">
+          {errorMsg && (
+            <div className="p-2.5 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs font-medium">
+              {errorMsg}
             </div>
-            <CardTitle className="text-xl font-bold tracking-tight">
-              {dictionary.auth.loginTitle}
-            </CardTitle>
-            <CardDescription className="text-xs">
-              {dictionary.auth.loginSubtitle}
-            </CardDescription>
-          </CardHeader>
+          )}
 
-          <CardContent className="space-y-4 pb-6">
-            {/* Role Switcher */}
-            <div>
-              <label className="text-xs font-semibold text-muted-foreground block mb-2">
-                {dictionary.auth.selectRole}
-              </label>
-              <div className="grid grid-cols-2 gap-2.5">
-                <div
-                  onClick={() => setSelectedRole("manager")}
-                  className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all ${
-                    selectedRole === "manager"
-                      ? "border-primary bg-purple-50/60 dark:bg-purple-950/40 ring-1 ring-primary shadow-xs"
-                      : "border-border hover:border-zinc-300 dark:hover:border-zinc-700 bg-card"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-xs text-foreground">{dictionary.auth.roleManager}</span>
-                    {selectedRole === "manager" && <ShieldCheck className="w-4 h-4 text-primary" />}
-                  </div>
-                  <p className="text-[11px] text-muted-foreground leading-snug">
-                    {dictionary.auth.roleManagerDesc}
-                  </p>
-                </div>
-
-                <div
-                  onClick={() => setSelectedRole("cashier")}
-                  className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all ${
-                    selectedRole === "cashier"
-                      ? "border-primary bg-purple-50/60 dark:bg-purple-950/40 ring-1 ring-primary shadow-xs"
-                      : "border-border hover:border-zinc-300 dark:hover:border-zinc-700 bg-card"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-xs text-foreground">{dictionary.auth.roleCashier}</span>
-                    {selectedRole === "cashier" && <UserCheck className="w-4 h-4 text-primary" />}
-                  </div>
-                  <p className="text-[11px] text-muted-foreground leading-snug">
-                    {dictionary.auth.roleCashierDesc}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Custom Name */}
-            <div>
-              <label className="text-xs font-medium text-muted-foreground block mb-1">
-                {locale === "lo"
-                  ? "ຊື່ຜູ້ເຂົ້າໃຊ້ງານ (ສາມາດໃສ່ຊື່ທ່ານໄດ້):"
-                  : locale === "th"
-                  ? "ชื่อผู้เข้าใช้งาน (สามารถระบุชื่อคุณได้):"
-                  : "Cashier / Staff Name (Optional):"}
-              </label>
+          {/* Email / Username Input */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-foreground block">
+              {dictionary.auth.emailLabel}
+            </label>
+            <div className="relative">
+              <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder={selectedRole === "manager" ? "Nengxiong" : "Khamla"}
-                value={customName}
-                onChange={(e) => setCustomName(e.target.value)}
-                className="text-xs h-10 rounded-xl"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="manager@JustGoDev.com"
+                className="pl-9 h-10 text-xs bg-background"
               />
             </div>
+          </div>
 
-            {/* 1-Click Login Button */}
-            <Button
-              onClick={() => handleQuickLogin(selectedRole)}
-              className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm shadow-md shadow-primary/20 gap-2 rounded-xl"
-            >
-              <span>{dictionary.auth.quickLoginBtn}</span>
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+          {/* Password Input */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-foreground block">
+              {dictionary.auth.passwordLabel}
+            </label>
+            <div className="relative">
+              <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type={showPassword ? "text" : "password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="pl-9 pr-9 h-10 text-xs bg-background"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+          </div>
 
-      {/* Footer */}
-      <footer className="text-center py-4 text-xs text-muted-foreground">
-        <p>
-          {dictionary.common.poweredBy} •{" "}
-          <a
-            href="https://justgodev.com"
-            target="_blank"
-            rel="noreferrer"
-            className="text-primary hover:underline font-semibold"
+          {/* Remember me row */}
+          <div className="flex items-center justify-between text-xs pt-0.5">
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="rounded border-border text-primary focus:ring-primary h-3.5 w-3.5"
+              />
+              <span className="text-muted-foreground">{dictionary.auth.rememberMe}</span>
+            </label>
+            <span className="text-[11px] text-primary hover:underline cursor-pointer">
+              {dictionary.auth.forgotPassword}
+            </span>
+          </div>
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            className="w-full h-10 text-xs font-bold gap-2 shadow-sm rounded-xl cursor-pointer"
           >
-            justgodev.com
-          </a>
-        </p>
-      </footer>
+            <span>{dictionary.auth.quickLoginBtn || "ເຂົ້າສູ່ລະບົບ"}</span>
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+
+          {/* Demo Credentials Box (เปะ user & password ไว้ในหน้า form) */}
+          <div className="pt-2">
+            <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/80 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                  <KeyRound className="w-3.5 h-3.5 text-primary" />
+                  <span>{dictionary.auth.demoCredentialsTitle}</span>
+                </div>
+                <span className="text-[10px] text-muted-foreground font-medium">
+                  {dictionary.auth.clickToAutoFill}
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                {DEMO_ACCOUNTS.map((acc) => {
+                  const isSelected = selectedAccountId === acc.id;
+                  const roleLabel =
+                    acc.role === "manager"
+                      ? dictionary.auth.roleManager
+                      : dictionary.auth.roleCashier;
+
+                  return (
+                    <button
+                      type="button"
+                      key={acc.id}
+                      onClick={() => handleFillAccount(acc)}
+                      className={`w-full p-2.5 rounded-xl border text-left transition-all flex items-center justify-between group cursor-pointer ${
+                        isSelected
+                          ? "bg-primary/10 border-primary text-foreground"
+                          : "bg-background border-border/60 hover:border-primary/40 text-foreground"
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold text-xs text-foreground">
+                            {roleLabel}
+                          </span>
+                          {isSelected && (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5 text-[11px] font-mono text-muted-foreground truncate">
+                          <span>User: <strong className="text-foreground">{acc.email}</strong></span>
+                          <span>•</span>
+                          <span>Pass: <strong className="text-foreground">{acc.pass}</strong></span>
+                        </div>
+                      </div>
+
+                      <span className="text-[10px] font-medium px-2 py-1 rounded-md bg-muted text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-colors shrink-0">
+                        {dictionary.auth.fillButton}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </form>
+
+        {/* Developer Credit Inside Form */}
+        <div className="pt-2 border-t border-border/60 text-center">
+          <p className="text-[11px] text-muted-foreground">
+            {dictionary.auth.developerCredit}{" "}
+            <span className="font-semibold text-foreground">JustGoDev</span> (Nengxiong WANGTOUAXIONG)
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

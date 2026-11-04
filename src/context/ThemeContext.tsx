@@ -7,11 +7,13 @@ type Theme = "dark" | "light";
 interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
+  setTheme: (t: Theme) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: "light",
   toggleTheme: () => {},
+  setTheme: () => {},
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -49,8 +51,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const setSpecificTheme = (t: Theme) => {
+    setTheme(t);
+    try {
+      localStorage.setItem("nx_demo_theme", t);
+    } catch {
+      // Ignore storage errors
+    }
+  };
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme: setSpecificTheme }}>
       {children}
     </ThemeContext.Provider>
   );

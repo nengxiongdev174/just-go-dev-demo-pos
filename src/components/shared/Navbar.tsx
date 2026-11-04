@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import {
   ShoppingBag,
   BarChart3,
@@ -41,19 +42,26 @@ export function Navbar({
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-card/90 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <div className="w-full px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Brand & Tabs */}
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => setActiveTab("pos")}>
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 flex items-center justify-center text-white font-bold shadow-md shadow-purple-500/20">
-              NX
+            <div className="h-9 w-9 relative flex items-center justify-center shrink-0">
+              <Image
+                src="/jgd-latets-logo-no-bg.png"
+                alt="JustGoDev Logo"
+                width={36}
+                height={36}
+                className="w-full h-full object-contain"
+                priority
+              />
             </div>
             <div className="hidden sm:block">
-              <span className="font-bold text-sm tracking-tight gradient-brand-text block">
-                JUSTGODEV
+              <span className="font-bold text-sm tracking-tight text-foreground block">
+                JustGoDev
               </span>
-              <span className="text-[11px] font-medium text-muted-foreground block -mt-1">
-                Cloud POS
+              <span className="text-[11px] font-medium text-muted-foreground block -mt-0.5">
+                Welcome to POS - Demo
               </span>
             </div>
           </div>
@@ -142,7 +150,7 @@ export function Navbar({
             size="icon"
             onClick={toggleTheme}
             className="h-8 w-8 text-muted-foreground hover:text-foreground"
-            title="Toggle Dark / Light"
+            title={`${dictionary.common.lightMode} / ${dictionary.common.darkMode}`}
           >
             {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-500" />}
           </Button>

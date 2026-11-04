@@ -11,7 +11,11 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isMounted && user) {
-      router.replace("/dashboard");
+      if (user.role === "cashier") {
+        router.replace("/pos");
+      } else {
+        router.replace("/dashboard");
+      }
     }
   }, [isMounted, user, router]);
 

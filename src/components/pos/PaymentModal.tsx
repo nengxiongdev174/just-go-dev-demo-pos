@@ -1,24 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Banknote, QrCode, CreditCard, X, Check, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { type CartItem, type Currency, type Order } from "@/types/pos";
+import { type PaymentModalProps } from "@/types/pos";
 import { useLanguage } from "@/context/LanguageContext";
-
-interface PaymentModalProps {
-  items: CartItem[];
-  subtotal: number;
-  tax: number;
-  discount: number;
-  total: number;
-  currency: Currency;
-  cashierName: string;
-  onClose: () => void;
-  onSuccess: (order: Order) => void;
-}
+import { formatCurrency } from "@/lib/formatters";
+import { usePaymentModal } from "@/hooks/usePaymentModal";
 
 export function PaymentModal({
   items,
@@ -32,56 +22,27 @@ export function PaymentModal({
   onSuccess,
 }: PaymentModalProps) {
   const { dictionary } = useLanguage();
-  const [method, setMethod] = useState<"cash" | "qr" | "card">("qr");
-  const [receivedAmount, setReceivedAmount] = useState<number>(total);
-
-  const formatPrice = (amount: number): string => {
-    if (currency === "LAK") {
-      return `₭ ${Math.round(amount).toLocaleString()}`;
-    } else if (currency === "THB") {
-      return `฿ ${amount.toFixed(2)}`;
-    }
-    return `$ ${amount.toFixed(2)}`;
-  };
-
-  const change = Math.max(0, receivedAmount - total);
-
-  const handleCompletePayment = () => {
-    const newOrder: Order = {
-      id: `ord-${Date.now()}`,
-      orderNumber: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
-      items: items.map((ci) => {
-        const itemPrice =
-          currency === "LAK"
-            ? ci.product.priceLAK
-            : currency === "THB"
-            ? ci.product.priceTHB
-            : ci.product.priceUSD;
-        return {
-          id: ci.product.id,
-          name: ci.product.name.en || ci.product.name.th || ci.product.name.lo,
-          price: itemPrice,
-          quantity: ci.quantity,
-          subtotal: itemPrice * ci.quantity,
-        };
-      }),
-      subtotal,
-      tax,
-      discount,
-      total,
-      currency,
-      paymentMethod: method,
-      cashierName,
-      createdAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      timestamp: Date.now(),
-    };
-
-    onSuccess(newOrder);
-  };
+  const {
+    method,
+    setMethod,
+    receivedAmount,
+    setReceivedAmount,
+    change,
+    handleCompletePayment,
+  } = usePaymentModal(
+    items,
+    subtotal,
+    tax,
+    discount,
+    total,
+    currency,
+    cashierName,
+    onSuccess
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-card text-card-foreground border border-border rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+      <div className="bg-card text-card-foreground border border-border rounded-2xl max-w-md w-full p-6 shadow-2xl relative my-8">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-muted-foreground hover:text-foreground cursor-pointer"
@@ -89,127 +50,130 @@ export function PaymentModal({
           <X className="w-5 h-5" />
         </button>
 
-        <h3 className="text-lg font-bold mb-1">{dictionary.common.checkout}</h3>
+        <h3 className="text-base font-bold mb-1">{dictionary.common.paymentMethod}</h3>
         <p className="text-xs text-muted-foreground mb-4">
-          {dictionary.auth.loggedInAs}: <span className="font-semibold text-primary">{cashierName}</span>
+          {dictionary.payment.selectChannelDesc}
         </p>
 
-        {/* Total to pay banner */}
-        <div className="bg-gradient-to-r from-purple-600/10 via-indigo-600/10 to-pink-600/10 border border-purple-500/30 rounded-xl p-4 text-center mb-5">
-          <span className="text-xs text-muted-foreground block">{dictionary.common.total}</span>
-          <span className="text-2xl font-extrabold text-primary tracking-tight">
-            {formatPrice(total)}
-          </span>
-          <div className="text-[11px] text-muted-foreground mt-0.5">
-            {items.length} {dictionary.common.itemsCount} • VAT 7% ({formatPrice(tax)})
-          </div>
+        {/* Method selector */}
+        <div className="grid grid-cols-3 gap-2.5 mb-5">
+          <button
+            type="button"
+            onClick={() => setMethod("qr")}
+            className={`flex flex-col items-center justify-center p-3 rounded-xl border text-xs gap-1.5 transition-all cursor-pointer ${
+              method === "qr"
+                ? "border-primary bg-primary/10 text-primary font-bold shadow-xs"
+                : "border-border hover:bg-muted/50 text-muted-foreground"
+            }`}
+          >
+            <QrCode className="w-5 h-5" />
+            <span>QR Code</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMethod("cash")}
+            className={`flex flex-col items-center justify-center p-3 rounded-xl border text-xs gap-1.5 transition-all cursor-pointer ${
+              method === "cash"
+                ? "border-primary bg-primary/10 text-primary font-bold shadow-xs"
+                : "border-border hover:bg-muted/50 text-muted-foreground"
+            }`}
+          >
+            <Banknote className="w-5 h-5" />
+            <span>{dictionary.common.cash}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMethod("card")}
+            className={`flex flex-col items-center justify-center p-3 rounded-xl border text-xs gap-1.5 transition-all cursor-pointer ${
+              method === "card"
+                ? "border-primary bg-primary/10 text-primary font-bold shadow-xs"
+                : "border-border hover:bg-muted/50 text-muted-foreground"
+            }`}
+          >
+            <CreditCard className="w-5 h-5" />
+            <span>{dictionary.common.card}</span>
+          </button>
         </div>
 
-        {/* Payment Methods */}
-        <div className="mb-5">
-          <label className="text-xs font-semibold text-muted-foreground block mb-2">
-            {dictionary.common.paymentMethod}
-          </label>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              onClick={() => setMethod("qr")}
-              className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                method === "qr"
-                  ? "border-primary bg-primary/10 ring-1 ring-primary shadow-xs"
-                  : "border-border hover:bg-muted/50"
-              }`}
-            >
-              <QrCode className="w-5 h-5 text-indigo-500" />
-              <span className="text-[11px] font-semibold">QR Code</span>
-            </button>
+        {/* Detail Content per method */}
+        <div className="bg-muted/30 border border-border/60 rounded-xl p-4 mb-5 text-xs">
+          {method === "qr" && (
+            <div className="flex flex-col items-center text-center space-y-2 py-2">
+              <div className="p-3 bg-white rounded-xl shadow-xs border border-border">
+                <QrCode className="w-28 h-28 text-slate-900" />
+              </div>
+              <Badge variant="outline" className="text-[10px] bg-indigo-50 dark:bg-indigo-950 text-indigo-600 border-indigo-200">
+                BCEL OnePay / PromptPay Dynamic QR
+              </Badge>
+              <p className="text-[11px] text-muted-foreground">
+                {dictionary.payment.scanQrDesc}
+              </p>
+            </div>
+          )}
 
-            <button
-              onClick={() => setMethod("cash")}
-              className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                method === "cash"
-                  ? "border-primary bg-primary/10 ring-1 ring-primary shadow-xs"
-                  : "border-border hover:bg-muted/50"
-              }`}
-            >
-              <Banknote className="w-5 h-5 text-emerald-500" />
-              <span className="text-[11px] font-semibold">{dictionary.common.cash}</span>
-            </button>
+          {method === "cash" && (
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">{dictionary.common.total}:</span>
+                <span className="font-bold text-sm font-mono text-foreground">
+                  {formatCurrency(total, currency)}
+                </span>
+              </div>
 
-            <button
-              onClick={() => setMethod("card")}
-              className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                method === "card"
-                  ? "border-primary bg-primary/10 ring-1 ring-primary shadow-xs"
-                  : "border-border hover:bg-muted/50"
-              }`}
-            >
-              <CreditCard className="w-5 h-5 text-amber-500" />
-              <span className="text-[11px] font-semibold">{dictionary.common.card}</span>
-            </button>
-          </div>
-        </div>
+              <div>
+                <label className="text-muted-foreground block mb-1">
+                  {dictionary.common.receivedAmount}:
+                </label>
+                <Input
+                  type="number"
+                  placeholder="0"
+                  value={receivedAmount}
+                  onChange={(e) => setReceivedAmount(e.target.value)}
+                  className="font-mono text-sm font-bold rounded-xl"
+                />
+              </div>
 
-        {/* Method-specific View */}
-        {method === "qr" && (
-          <div className="bg-muted/40 border border-border rounded-xl p-4 text-center mb-5">
-            <Badge variant="outline" className="mb-2 text-[10px] border-indigo-500/40 text-indigo-400 bg-indigo-500/10">
-              OnePay / PromptPay / Universal QR
-            </Badge>
-            <div className="w-36 h-36 bg-white p-2 rounded-xl mx-auto shadow-md flex items-center justify-center border border-zinc-200">
-              {/* Simulated stylized QR SVG */}
-              <div className="w-full h-full border-2 border-dashed border-purple-400 rounded-lg flex flex-col items-center justify-center text-zinc-900">
-                <QrCode className="w-20 h-20 text-purple-700" />
-                <span className="text-[9px] font-bold mt-1 text-purple-900">SCAN TO PAY</span>
+              <div className="flex justify-between items-center pt-2 border-t border-border/60">
+                <span className="text-muted-foreground">{dictionary.common.change}:</span>
+                <span className="font-extrabold text-base font-mono text-emerald-600">
+                  {formatCurrency(change, currency)}
+                </span>
               </div>
             </div>
-            <p className="text-[11px] text-muted-foreground mt-2">
-              {formatPrice(total)} • Auto-confirms upon scanning
-            </p>
-          </div>
-        )}
+          )}
 
-        {method === "cash" && (
-          <div className="space-y-3 bg-muted/30 border border-border rounded-xl p-4 mb-5">
-            <div>
-              <label className="text-xs text-muted-foreground block mb-1">
-                {dictionary.common.receivedAmount} ({currency})
-              </label>
-              <Input
-                type="number"
-                value={receivedAmount}
-                onChange={(e) => setReceivedAmount(Number(e.target.value))}
-                className="font-mono text-sm"
-              />
+          {method === "card" && (
+            <div className="text-center py-4 space-y-1.5">
+              <CreditCard className="w-8 h-8 text-muted-foreground mx-auto" />
+              <p className="font-semibold text-foreground">{dictionary.payment.cardTapSwipe}</p>
+              <p className="text-[11px] text-muted-foreground">
+                {dictionary.payment.cardSupportDesc}
+              </p>
             </div>
-            <div className="flex justify-between items-center text-xs pt-1">
-              <span className="text-muted-foreground">{dictionary.common.change}:</span>
-              <span className={`font-bold font-mono text-sm ${change >= 0 ? "text-emerald-500" : "text-destructive"}`}>
-                {formatPrice(change)}
-              </span>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {method === "card" && (
-          <div className="bg-muted/30 border border-border rounded-xl p-4 text-center mb-5">
-            <CreditCard className="w-10 h-10 text-amber-500 mx-auto mb-2 opacity-80" />
-            <p className="text-xs font-medium">Ready for Card Tap / Chip Insert</p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">Simulated POS Card Terminal</p>
-          </div>
-        )}
+        {/* Total Summary */}
+        <div className="flex justify-between items-baseline mb-4 px-1">
+          <span className="text-xs text-muted-foreground">{dictionary.payment.finalCharge}:</span>
+          <span className="font-extrabold text-lg text-primary font-mono">
+            {formatCurrency(total, currency)}
+          </span>
+        </div>
 
-        {/* Submit */}
+        {/* Action Button */}
         <Button
           onClick={handleCompletePayment}
-          disabled={method === "cash" && receivedAmount < total}
-          className="w-full h-11 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold gap-2 shadow-lg shadow-primary/20"
+          disabled={method === "cash" && (Number(receivedAmount) || 0) < total}
+          className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl text-xs gap-2 cursor-pointer shadow-md shadow-primary/20"
         >
           <Check className="w-4 h-4" />
-          <span>{dictionary.common.confirmPayment}</span>
+          <span>{dictionary.payment.confirmOrder}</span>
           <ArrowRight className="w-4 h-4" />
         </Button>
       </div>
     </div>
   );
 }
-

@@ -49,6 +49,32 @@ export interface TranslationSchema {
     price: string;
     productName: string;
     category: string;
+    action: string;
+    menu: string;
+    units: string;
+    barcode: string;
+    sku: string;
+    lightMode: string;
+    darkMode: string;
+    language: string;
+    noProductsFound: string;
+    catalogItems: string;
+    remaining: string;
+    currentOrder: string;
+    confirmDelete: string;
+    deleteNow: string;
+    deleteItem: string;
+    editProductTitle: string;
+    editProductSubtitle: string;
+    saveEdit: string;
+    stockQuantity: string;
+    stockQuantityDesc: string;
+    priceLAK: string;
+    productNameEn: string;
+    productNameLo: string;
+    productNameTh: string;
+    addItemDesc: string;
+    settingsTitle: string;
   };
   auth: {
     loginTitle: string;
@@ -64,6 +90,15 @@ export interface TranslationSchema {
     enterSystem: string;
     logout: string;
     loggedInAs: string;
+    emailLabel: string;
+    passwordLabel: string;
+    rememberMe: string;
+    forgotPassword: string;
+    demoCredentialsTitle: string;
+    clickToAutoFill: string;
+    fillButton: string;
+    credentialsRequired: string;
+    developerCredit: string;
   };
   demoSession: {
     bannerTitle: string;
@@ -89,11 +124,57 @@ export interface TranslationSchema {
     tableStatus: string;
     statusCompleted: string;
     statusPending: string;
+    weeklySalesTitle: string;
+    weeklySalesSubtitle: string;
+    revenue: string;
+    orders: string;
+    salesByCategory: string;
+    paymentChannels: string;
+    distribution: string;
+    liveOrdersDesc: string;
+    timeCashier: string;
+    noOrdersRecorded: string;
+    allInventoryHealthy: string;
+    itemsLowStock: string;
+    completedTransactions: string;
+    averageBasketValue: string;
+    left: string;
+    totalBadge: string;
+  };
+  payment: {
+    selectChannelDesc: string;
+    scanQrDesc: string;
+    cardTapSwipe: string;
+    cardSupportDesc: string;
+    finalCharge: string;
+    confirmOrder: string;
+    thankYou: string;
+    cashier: string;
   };
   currencySwitcher: {
     lak: string;
     thb: string;
     usd: string;
+  };
+  settings: {
+    title: string;
+    subtitle: string;
+    generalGroup: string;
+    currencyGroup: string;
+    currencyDesc: string;
+    languageGroup: string;
+    languageDesc: string;
+    themeGroup: string;
+    themeDesc: string;
+    accountGroup: string;
+    accountDesc: string;
+    logoutButton: string;
+    logoutConfirm: string;
+    systemInfo: string;
+    systemInfoDesc: string;
+    roleLabel: string;
+    activeBadge: string;
+    previewLabel: string;
   };
 }
 
