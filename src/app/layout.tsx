@@ -7,6 +7,11 @@ import { POSProvider } from "@/context/POSContext";
 export const metadata: Metadata = {
   title: "JustGoDev • Live Demo",
   description: "Next-Gen Cloud POS & Retail Management Suite by JustGoDev - Multilingual (Lao, Thai, English) with Realtime LocalStorage Sandbox",
+  icons: {
+    icon: "/jgd-latets-logo.png",
+    shortcut: "/jgd-latets-logo.png",
+    apple: "/jgd-latets-logo.png",
+  },
 };
 
 export default function RootLayout({
